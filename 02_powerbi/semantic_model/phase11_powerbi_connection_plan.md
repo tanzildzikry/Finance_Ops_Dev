@@ -63,7 +63,7 @@ Use: issue drill-through and blocker investigation.
 
 Source: `snapshot.vw_daily_status_snapshot_latest_per_day`
 
-Grain: one row per BC per snapshot run.
+Grain: one row per BC per snapshot_date using the latest completed PASS run for that date.
 
 Use: daily movement and trend analysis.
 
@@ -240,3 +240,32 @@ unclassified_pic_count = 12
 manual_review_bc_count = 20
 average_aging_open_bc = 51.0055248618784530
 ```
+---
+
+## Phase 11.3 Patch - Align Movement Readiness Logic
+
+Status: PASS PENDING VALIDATION  
+Validation Date: 2026-05-15  
+Risk Level: MEDIUM before validation
+
+### Purpose
+
+Align movement readiness logic with the approved Power BI movement source.
+
+### Rule
+
+Movement readiness must be calculated from:
+
+```text
+snapshot.vw_daily_status_snapshot_latest_per_day
+```
+
+not from the base table:
+
+```text
+snapshot.bc_daily_status_snapshot
+```
+
+### Reason
+
+The base snapshot table may contain multiple runs for the same snapshot_date. The latest-per-day view prevents double counting and matches the approved Power BI movement source.

@@ -176,4 +176,4 @@ SELECT
         WHEN COUNT(DISTINCT snapshot_date) >= 2 THEN 'Daily movement is meaningful.'
         ELSE 'Daily movement is not meaningful yet because fewer than 2 snapshot dates exist.'
     END AS control_note
-FROM snapshot.bc_daily_status_snapshot;
+FROM snapshot.vw_daily_status_snapshot_latest_per_day;
