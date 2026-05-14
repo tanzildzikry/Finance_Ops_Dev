@@ -4,13 +4,211 @@
 
 Project: Finance_Ops_Dev  
 Repository: finance_ops_dev  
-Current Phase: Phase 4 — Source / Masked Data Preparation  
-Current Hold Point: Phase 3 completed; ready to prepare masked source files  
+GitHub Repository: https://github.com/tanzildzikry/finance_ops_dev.git  
+Current Phase: Phase 9 — Snapshot Layer Build  
+Current Hold Point: Phase 8 completed; clean layer validation passed and ready for snapshot layer build  
 Last Updated: 2026-05-14  
+
+Current validation result: PASS up to Phase 8  
+Current risk level after control: LOW  
+Production readiness: NOT YET  
 
 ---
 
-## Phase 0 — Project Safety Foundation
+## Project Scope
+
+Current dashboard focus:
+
+- Unbilled Monitoring
+- Executive Overview
+- AR Controller
+- PIC Operation Scoring
+- Daily Snapshot
+- Data Quality / Exception Control
+
+Current in-scope technical foundation:
+
+- PostgreSQL database foundation
+- Raw source ingestion
+- Clean layer transform
+- Clean layer validation
+- Snapshot preparation
+- SQL validation
+- Power BI semantic model preparation
+- DAX measure preparation
+- SQL vs Power BI reconciliation
+
+Out of scope for current dashboard:
+
+- Actual cashflow
+- Actual cash-in
+- DSO
+- Collection performance
+- Payment overdue final
+
+Cashflow will be handled later only after cash-in / cash receipt data exists.
+
+---
+
+## Active Business Rules
+
+- RAB = Revenue / planned billable amount.
+- High risk = aging > 60 and RAB >= 3,000,000,000.
+- UNCLASSIFIED = PIC not input in ERP; correction bucket.
+- UNCLASSIFIED is not a PIC performance penalty.
+- REPORTED = excluded bucket, not active backlog.
+- DATELINE KE AR = excluded.
+- Source date format = MM/DD/YYYY.
+- event_category currently means PIC division.
+- event_status = ENDED or ON GOING based on event_end_date vs today.
+- Actual cashflow is out of scope until cash-in data exists.
+
+Closed / fully invoiced rule:
+
+```text
+bill_status = BILLED
+AND invoice_number IS NOT NULL
+AND invoice_completion_ratio >= 0.98
+```
+
+Preferred open backlog logic when snapshot v1.1 exists:
+
+```text
+is_open_unbilled = true
+```
+
+Preferred open exposure logic when snapshot v1.1 exists:
+
+```text
+open_rab_exposure_amount
+```
+
+---
+
+## Project Execution Rules Updated During Build
+
+### File Creation Rule
+
+For creating or overwriting project files:
+
+- Prioritize Python-based file writing.
+- Avoid PowerShell `Set-Content` for SQL / Markdown files.
+- Use UTF-8 without BOM.
+- Avoid Linux/macOS heredoc syntax such as `python - <<'PY'` because the user is using Windows PowerShell.
+- Do not provide scripts with placeholders such as `{target}`, `<USER>`, or `SQL CONTENT HERE`.
+- If a path, file name, folder, or other required input is unknown, confirm it first before writing the script.
+- For psql scripts, execute SQL files using `psql -f`.
+- Do not paste SQL file content directly into PowerShell.
+
+### psql / SQL File Rule
+
+- `\copy` must be written as a one-line psql meta-command.
+- Use `\set ON_ERROR_STOP on` for controlled failure.
+- Use `psql.exe -f` to run `.sql` files.
+- `pgAdmin Query Tool` is not used for scripts containing `\copy` or `\echo`.
+
+---
+
+## Repository Safety Rules
+
+Allowed in GitHub:
+
+- Masked sample data
+- Synthetic sample data
+- SQL DDL
+- SQL transform
+- SQL validation
+- Approved SQL examples
+- DAX measures
+- Power BI documentation
+- Semantic model documentation
+- Dashboard mapping
+- Test scripts
+- Reconciliation checklist
+- Markdown documentation
+
+Not allowed in GitHub:
+
+- Real CSV
+- Real Excel
+- Real customer data
+- Real PIC data if sensitive
+- Real invoice numbers
+- Real confidential transaction files
+- Database dumps
+- `.env`
+- Passwords
+- Connection strings
+- API keys
+- Private keys
+- PBIX files with embedded real data
+
+Approved masked sample folder:
+
+```text
+03_sample_data_masked/
+```
+
+Control note:
+
+```text
+Amount fields are currently accepted by the user as safe, but must be reviewed again if the repository is shared externally or if repo visibility changes.
+```
+
+---
+
+## Current Repository Structure
+
+```text
+00_docs/
+  progress_log.md
+  source_data_preparation.md
+  source_file_register.md
+  masked_source_review.md
+  masked_source_profile_result.md
+
+01_database/
+  ddl/
+    001_create_database_and_schemas.sql
+    002_create_and_load_raw_source_tables.sql
+  transform/
+    003_transform_raw_to_clean.sql
+  validation/
+    001_validate_database_and_schemas.sql
+    002_validate_raw_source_load.sql
+    003_validate_clean_layer.sql
+  snapshot/
+  approved_sql_examples/
+
+02_powerbi/
+  dax/
+  semantic_model/
+  page_mapping/
+
+03_sample_data_masked/
+  README.md
+  masked_bc_source_sample.csv
+  masked_pic_list_sample.csv
+
+04_python/
+  issue_classifier/
+
+05_tests/
+  sql_tests/
+  dax_tests/
+  reconciliation_tests/
+  source_file_profile_check.py
+
+.env.example
+.gitignore
+DATA_SAFETY_CHECKLIST.md
+README.md
+REPO_SCOPE.md
+```
+
+---
+
+# Phase 0 — Project Safety Foundation
 
 Status: PASS
 
@@ -53,7 +251,7 @@ Risk level after control: LOW
 
 ---
 
-## Phase 1 — GitHub Repository Setup
+# Phase 1 — GitHub Repository Setup
 
 Status: PASS
 
@@ -63,6 +261,7 @@ Completed items:
 - New GitHub repository connected for Finance Ops Dev project.
 - Local repository connected to GitHub remote.
 - Initial commit pushed to GitHub.
+- Repository visibility confirmed public after user updated visibility.
 
 GitHub repository:
 
@@ -82,7 +281,7 @@ Risk level after control: LOW
 
 ---
 
-## Phase 2 — Repository Structure
+# Phase 2 — Repository Structure
 
 Status: PASS
 
@@ -122,11 +321,11 @@ Risk level after control: LOW
 
 ---
 
-## Phase 3 — PostgreSQL Environment Setup
+# Phase 3 — PostgreSQL Environment Setup
 
 Status: PASS
 
-### Phase 3.1 — PostgreSQL Installation Check
+## Phase 3.1 — PostgreSQL Installation Check
 
 Status: PASS
 
@@ -165,7 +364,7 @@ Risk level after control: LOW
 
 ---
 
-### Phase 3.2 — PostgreSQL Login Test
+## Phase 3.2 — PostgreSQL Login Test
 
 Status: PASS
 
@@ -198,7 +397,7 @@ Risk level after control: LOW
 
 ---
 
-### Phase 3.3 — Database and Schema Setup Script
+## Phase 3.3 — Database and Schema Setup Script
 
 Status: PASS
 
@@ -225,7 +424,7 @@ Risk level after control: LOW
 
 ---
 
-### Phase 3.4 — Database and Schema Execution
+## Phase 3.4 — Database and Schema Execution
 
 Status: PASS
 
@@ -282,7 +481,7 @@ Risk level after control: LOW
 
 ---
 
-### Phase 3.5 — Database Setup Validation Script
+## Phase 3.5 — Database Setup Validation Script
 
 Status: PASS
 
@@ -333,130 +532,521 @@ Risk level after control: LOW
 
 ---
 
-## Current Database Foundation
+# Phase 4 — Source / Masked Data Preparation
 
-Current PostgreSQL database:
+Status: PASS
+
+Completed items:
+
+- `source_data_preparation.md` created.
+- `source_file_register.md` created.
+- Masked source files added.
+- `masked_source_review.md` created.
+- Python source profile script created.
+- Masked source profile result generated.
+- Source files confirmed under approved masked folder.
+- File profile checked:
+  - file existence
+  - file size
+  - delimiter
+  - header count
+  - row count
+  - duplicate header count
+  - header list
+
+Masked files added:
+
+```text
+03_sample_data_masked/masked_bc_source_sample.csv
+03_sample_data_masked/masked_pic_list_sample.csv
+```
+
+Profile script:
+
+```text
+05_tests/source_file_profile_check.py
+```
+
+Profile result:
+
+```text
+00_docs/masked_source_profile_result.md
+```
+
+Source profile result:
+
+| Source File | Row Count | Header Count | Duplicate Header Count | Validation Result | Risk Level |
+|---|---:|---:|---:|---|---|
+| masked_bc_source_sample.csv | 8266 | 27 | 0 | PASS | LOW |
+| masked_pic_list_sample.csv | 69 | 4 | 0 | PASS | LOW |
+
+BC source expected headers:
+
+```text
+NO
+EVENT NAME
+CUSTOMER
+EVENT START DATE
+EVENT END DATE
+UNBILL AGING
+EVENT STATUS
+EVENT CATEGORY
+PIC INTERNAL
+BC NUMBER
+NILAI
+RAB
+TOTAL TERINVOICE
+UMK RELEASED
+UMK ISSUED
+PERIODE PENCATATAN
+REMARKS
+DOKUMEN KURANG
+DATELINE KE AR
+PIC USER
+PO STATUS
+UMK STATUS
+BILL STATUS
+INVOICE NUMBER
+INVOICE DATE (LATEST)
+CLOSING DURATION
+HANDLING FEE
+```
+
+PIC source expected headers:
+
+```text
+Nama Lengkap
+PIC
+DIVISI
+STATUS
+```
+
+Important note:
+
+```text
+PowerShell script was abandoned for source profiling because of parsing and encoding issues.
+Python script is now the accepted approach for source profile checking.
+```
+
+Validation result: PASS  
+Risk level after control: LOW
+
+---
+
+# Phase 5 — Raw Layer Build
+
+Status: PASS
+
+Completed items:
+
+- Created raw source table load script.
+- Created `raw.raw_bc_source`.
+- Created `raw.raw_pic_list`.
+- Used raw layer text-first approach.
+- Loaded masked BC CSV into PostgreSQL raw table.
+- Loaded masked PIC CSV into PostgreSQL raw table.
+- Added source metadata columns:
+  - `source_file_name`
+  - `loaded_at`
+- Debugged psql / PowerShell execution issue.
+- Debugged `\copy` multiline issue.
+- Finalized `\copy` as one-line psql meta-command.
+- Added `\set ON_ERROR_STOP on` to stop script on load error.
+
+Created file:
+
+```text
+01_database/ddl/002_create_and_load_raw_source_tables.sql
+```
+
+Active source paths:
+
+```text
+D:/Tanzil/AR COLLECTION/_DASHBOARD POWER BI/Bahan SQL + PBI/finance_ops_dev/Repo Finance_Ops_Dev/03_sample_data_masked/masked_bc_source_sample.csv
+```
+
+```text
+D:/Tanzil/AR COLLECTION/_DASHBOARD POWER BI/Bahan SQL + PBI/finance_ops_dev/Repo Finance_Ops_Dev/03_sample_data_masked/masked_pic_list_sample.csv
+```
+
+Final raw load result:
+
+```text
+raw.raw_bc_source = 8266 rows
+raw.raw_pic_list  = 69 rows
+```
+
+Key integrity result:
+
+```text
+raw.raw_bc_source.bc_number | table_row_count 8266 | null_or_blank_count 0 | duplicate_count 0 | PASS
+raw.raw_pic_list.pic_code   | table_row_count 69   | null_or_blank_count 0 | duplicate_count 0 | PASS
+```
+
+Metadata validation result:
+
+```text
+masked_bc_source_sample.csv | row_count 8266
+masked_pic_list_sample.csv  | row_count 69
+```
+
+Issues resolved:
+
+1. SQL script was initially pasted directly into PowerShell.
+   - Result: PowerShell parse error on SQL comments.
+   - Resolution: save SQL script as `.sql` file and run through `psql`.
+
+2. `\copy` was initially written as multiline.
+   - Result: `\copy: parse error at end of line`.
+   - Resolution: write each `\copy` command as one full line.
+
+3. Existing raw tables from previous attempt caused metadata mismatch.
+   - Resolution: controlled reload with `DROP TABLE IF EXISTS` for raw tables in local development script.
+
+Commit message:
+
+```text
+feat: add raw source table load script
+```
+
+Validation result: PASS  
+Risk level after control: LOW
+
+---
+
+# Phase 6 — Raw Load Validation Script Separation
+
+Status: PASS
+
+Completed items:
+
+- Created separate validation script for raw load.
+- Validation can now be rerun without recreate/drop/load.
+- Validated raw row count.
+- Validated raw key integrity.
+- Validated raw metadata.
+- Validated raw column count.
+
+Created file:
+
+```text
+01_database/validation/002_validate_raw_source_load.sql
+```
+
+Row count validation:
+
+```text
+raw.raw_bc_source | actual_row_count 8266 | expected_row_count 8266 | PASS
+raw.raw_pic_list  | actual_row_count 69   | expected_row_count 69   | PASS
+```
+
+Key integrity validation:
+
+```text
+raw.raw_bc_source.bc_number | table_row_count 8266 | null_or_blank_count 0 | duplicate_count 0 | PASS
+raw.raw_pic_list.pic_code   | table_row_count 69   | null_or_blank_count 0 | duplicate_count 0 | PASS
+```
+
+Metadata validation:
+
+```text
+masked_bc_source_sample.csv | row_count 8266
+masked_pic_list_sample.csv  | row_count 69
+```
+
+Header / column count validation:
+
+```text
+raw.raw_bc_source | actual_column_count 29 | expected_column_count 29 | PASS
+raw.raw_pic_list  | actual_column_count 6  | expected_column_count 6  | PASS
+```
+
+Column count note:
+
+```text
+Raw source BC has 27 source columns + 2 metadata columns = 29 columns.
+Raw source PIC has 4 source columns + 2 metadata columns = 6 columns.
+```
+
+Commit message:
+
+```text
+test: add raw source load validation
+```
+
+Validation result: PASS  
+Risk level after control: LOW
+
+---
+
+# Phase 7 — Clean Layer DDL + Raw-to-Clean Transform
+
+Status: PASS
+
+Completed items:
+
+- Created raw-to-clean transform script.
+- Created / patched `clean.clean_bc`.
+- Created / patched `clean.clean_pic_list`.
+- Used safe reload approach because existing `clean.clean_bc` had dependent views.
+- Avoided `DROP TABLE ... CASCADE` to prevent deleting existing DQ and snapshot views.
+- Patched existing clean tables using `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.
+- Reloaded clean tables from raw tables.
+- Parsed source dates using MM/DD/YYYY.
+- Converted amount fields from raw text to numeric.
+- Converted aging and closing duration fields to integer.
+- Normalized status fields to uppercase.
+- Converted missing / invalid PIC values such as `#N/A`, `N/A`, `NA`, and blank to `UNCLASSIFIED`.
+- Preserved metadata:
+  - `source_file_name`
+  - `loaded_at`
+  - `cleaned_at`
+
+Created file:
+
+```text
+01_database/transform/003_transform_raw_to_clean.sql
+```
+
+Important implementation note:
+
+```text
+The first transform version attempted DROP TABLE on clean.clean_bc.
+PostgreSQL blocked the drop because dependent views already existed:
+- clean.vw_dq_bc_key_check
+- clean.vw_dq_bc_orphan_pic_check
+- clean.vw_dq_bc_amount_check
+- snapshot.vw_latest_bc_daily_status_snapshot
+
+Decision:
+Do not use DROP ... CASCADE because it could remove existing DQ and snapshot views.
+Use safe reload instead:
+- CREATE TABLE IF NOT EXISTS
+- ALTER TABLE ADD COLUMN IF NOT EXISTS
+- TRUNCATE
+- INSERT from raw
+```
+
+Additional issue resolved:
+
+```text
+Existing clean tables did not contain newer metadata or target columns such as loaded_at and ar_deadline_or_merge_invoice_notes.
+Resolution: safe reload v3 adds all required columns with ALTER TABLE ADD COLUMN IF NOT EXISTS before insert.
+```
+
+Final clean row count validation:
+
+```text
+clean.clean_bc       | actual_row_count 8266 | expected_row_count 8266 | PASS
+clean.clean_pic_list | actual_row_count 69   | expected_row_count 69   | PASS
+```
+
+Control note:
+
+```text
+Phase 7 validates clean row count only.
+Detailed clean data quality validation is handled in Phase 8.
+```
+
+Commit message:
+
+```text
+feat: add raw to clean transform
+```
+
+Validation result: PASS  
+Risk level after control: LOW
+
+---
+
+# Phase 8 — Clean Layer Validation
+
+Status: PASS
+
+Completed items:
+
+- Created clean layer validation script.
+- Deleted / replaced earlier `003_validate_clean_layer.sql` file that contained UTF-8 BOM.
+- Recreated validation file using Python writer with UTF-8 without BOM.
+- Validated raw vs clean row count.
+- Validated BC key integrity.
+- Validated PIC key integrity.
+- Validated duplicate BC risk.
+- Validated date parsing.
+- Validated amount negative checks.
+- Validated PIC orphan check.
+- Validated clean metadata.
+- Validated clean layer final summary.
+
+Created file:
+
+```text
+01_database/validation/003_validate_clean_layer.sql
+```
+
+Encoding control:
+
+```text
+Earlier attempt failed with:
+ERROR: syntax error at or near "ï»¿"
+
+Cause:
+The SQL file contained UTF-8 BOM.
+
+Resolution:
+Delete old file and recreate using Python with encoding='utf-8' without BOM.
+```
+
+Raw vs clean row count validation:
+
+```text
+BC raw vs clean  | raw_row_count 8266 | clean_row_count 8266 | expected_row_count 8266 | PASS
+PIC raw vs clean | raw_row_count 69   | clean_row_count 69   | expected_row_count 69   | PASS
+```
+
+Key integrity validation:
+
+```text
+clean.clean_bc.bc_number      | table_row_count 8266 | null_or_blank_count 0 | duplicate_count 0 | PASS
+clean.clean_pic_list.pic_code | table_row_count 69   | null_or_blank_count 0 | duplicate_count 0 | PASS
+```
+
+Date parsing validation:
+
+```text
+event_end_date        | raw_non_blank_count 8266 | clean_parsed_count 8266 | parse_failed_count 0 | PASS
+event_start_date      | raw_non_blank_count 8266 | clean_parsed_count 8266 | parse_failed_count 0 | PASS
+latest_invoice_date   | raw_non_blank_count 7730 | clean_parsed_count 7730 | parse_failed_count 0 | PASS
+recording_period_date | raw_non_blank_count 8193 | clean_parsed_count 8193 | parse_failed_count 0 | PASS
+```
+
+Clean layer final summary:
+
+```text
+bc_key_integrity      | PASS
+negative_amount_check | PASS
+pic_key_integrity     | PASS
+pic_orphan_check      | PASS
+row_count_bc          | PASS
+row_count_pic         | PASS
+```
+
+Control note:
+
+```text
+Phase 8 output shared by user confirms core clean layer validation PASS.
+Detailed distribution outputs for billing status and event status were generated by the script, but only the final summary and earlier date/key/row count sections were shared in chat.
+No blocking issue was reported by psql after final summary.
+```
+
+Recommended commit message:
+
+```text
+test: add clean layer validation
+```
+
+Validation result: PASS  
+Risk level after control: LOW
+
+---
+
+# Current PostgreSQL State
+
+Database:
 
 ```text
 finance_ops_dev
 ```
 
-Current schemas:
+Schemas:
 
 | Schema | Purpose |
 |---|---|
 | raw | Raw ingest layer. Stores source data with minimal transformation. |
 | clean | Clean layer. Stores standardized, typed, and validated data. |
 | snapshot | Snapshot layer. Stores daily BC status snapshot and issue history. |
-| mart | Mart layer. Stores subject-area analytical tables for reporting. |
-| reporting | Reporting layer. Stores Power BI-ready views and reporting outputs. |
-| documentary | Documentation and metadata layer. Stores data dictionary, validation logs, and lineage artifacts. |
+| mart | Subject-area analytical tables. |
+| reporting | Power BI-ready views and reporting outputs. |
+| documentary | Data dictionary, validation logs, lineage, and documentation metadata. |
+
+Current raw tables:
+
+```text
+raw.raw_bc_source
+raw.raw_pic_list
+```
+
+Current clean tables:
+
+```text
+clean.clean_bc
+clean.clean_pic_list
+```
+
+Current confirmed row counts:
+
+```text
+raw.raw_bc_source     = 8266
+raw.raw_pic_list      = 69
+clean.clean_bc        = 8266
+clean.clean_pic_list  = 69
+```
 
 ---
 
-## Current Validation Summary
+# Current Validation Summary
 
-| Area | Status |
-|---|---|
-| Repo safety foundation | PASS |
-| GitHub repository setup | PASS |
-| Repository folder structure | PASS |
-| Git installation | PASS |
-| Git commit and push | PASS |
-| PostgreSQL installation | PASS |
-| PostgreSQL PATH | PASS |
-| PostgreSQL login | PASS |
-| Database creation | PASS |
-| Schema creation | PASS |
-| Schema validation | PASS |
-| Database validation script | PASS |
-| Phase 3 PostgreSQL environment setup | PASS |
+| Area | Status | Risk |
+|---|---|---|
+| Repo safety foundation | PASS | LOW |
+| GitHub repository setup | PASS | LOW |
+| Repository folder structure | PASS | LOW |
+| PostgreSQL installation | PASS | LOW |
+| PostgreSQL PATH / psql | PASS | LOW |
+| PostgreSQL login | PASS | LOW |
+| Database creation | PASS | LOW |
+| Schema creation | PASS | LOW |
+| Schema validation | PASS | LOW |
+| Masked source profile | PASS | LOW |
+| Raw table build | PASS | LOW |
+| Raw CSV load | PASS | LOW |
+| Raw load validation | PASS | LOW |
+| Raw key integrity | PASS | LOW |
+| Raw column count validation | PASS | LOW |
+| Clean transform row count | PASS | LOW |
+| Clean layer validation | PASS | LOW |
+| Snapshot layer | NOT STARTED | MEDIUM |
+| Snapshot validation | NOT STARTED | MEDIUM |
+| Power BI connection | NOT STARTED | MEDIUM |
+| Power BI semantic model | NOT STARTED | MEDIUM |
+| DAX validation | NOT STARTED | MEDIUM |
+| Power BI vs SQL reconciliation | NOT STARTED | MEDIUM |
 
 ---
 
-## Current Hold Point
+# Current Hold Point
 
 We are holding after:
 
 ```text
-Phase 3.5 — Database setup validation script
+Phase 8 — Clean Layer Validation
 ```
 
 Last validation result:
 
 ```text
-Phase 3 database foundation validation result = PASS
+Phase 8 Clean Layer Validation = PASS
 ```
 
 Next recommended phase:
 
 ```text
-Phase 4 — Source / Masked Data Preparation
+Phase 9 — Snapshot Layer Build
 ```
 
 ---
 
-## Uncompleted Tasks / Next Action Backlog
-
-### Phase 3 — PostgreSQL Environment Setup
-
-Status: PASS
-
-Completed tasks:
-
-- [x] Create database setup validation script.
-- [x] Save database/schema validation SQL under `01_database/validation/`.
-- [x] Run validation script from PostgreSQL.
-- [x] Commit database validation script.
-- [x] Push database validation script to GitHub.
-- [x] Document final Phase 3 validation result.
-
-### Phase 4 — Source / Masked Data Preparation
-
-Status: NOT STARTED
-
-Pending tasks:
-
-- [ ] Prepare masked source files.
-- [ ] Confirm masked source column mapping is identical to real project.
-- [ ] Store masked source files only under `03_sample_data_masked/`.
-- [ ] Document source file names and column mapping.
-- [ ] Confirm no real customer, PIC, invoice, credential, or sensitive export exists in repo.
-- [ ] Review amount field safety again before sharing repo externally.
-
-### Phase 5 — Raw Layer Build
-
-Status: NOT STARTED
-
-Pending tasks:
-
-- [ ] Create raw table DDL.
-- [ ] Commit raw table DDL to `01_database/ddl/`.
-- [ ] Load masked CSV into raw tables.
-- [ ] Validate raw row count.
-- [ ] Validate raw column count.
-- [ ] Validate source date format.
-- [ ] Document raw ingest result.
-
-### Phase 6 — Clean Layer Build
-
-Status: NOT STARTED
-
-Pending tasks:
-
-- [ ] Add raw-to-clean transform SQL.
-- [ ] Standardize column names.
-- [ ] Parse date fields using confirmed source format.
-- [ ] Cast amount fields.
-- [ ] Normalize status fields.
-- [ ] Convert invalid/missing PIC to `UNCLASSIFIED` where applicable.
-- [ ] Validate raw vs clean row count.
-- [ ] Validate key integrity.
-- [ ] Validate duplicate BC risk.
-- [ ] Validate date parsing.
-- [ ] Commit clean transform and validation scripts.
-
-### Phase 7 — Snapshot Layer Build
+# Phase 9 — Snapshot Layer Build
 
 Status: NOT STARTED
 
@@ -469,30 +1059,60 @@ Pending tasks:
 - [ ] Add `is_reported_excluded`.
 - [ ] Add invoice completion fields.
 - [ ] Add risk and manual review fields.
+- [ ] Add data quality fields.
+- [ ] Add issue source text.
+- [ ] Add source row hash / record hash if required.
+- [ ] Create snapshot run log.
 - [ ] Run snapshot function.
 - [ ] Validate snapshot row count.
 - [ ] Validate snapshot control fields.
 - [ ] Commit snapshot DDL and validation scripts.
 
-### Phase 8 — PostgreSQL Validation
+Target table:
+
+```text
+snapshot.bc_daily_status_snapshot
+```
+
+Target issue history table:
+
+```text
+snapshot.bc_daily_issue_history
+```
+
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 10 — Snapshot Validation
 
 Status: NOT STARTED
 
 Pending tasks:
 
-- [ ] Run raw-clean validation.
-- [ ] Run snapshot validation.
-- [ ] Run SQL test cases.
-- [ ] Validate BC key integrity.
-- [ ] Validate PIC key integrity.
-- [ ] Validate amount fields.
-- [ ] Validate billing logic.
-- [ ] Validate invoice completion logic.
+- [ ] Run snapshot row count validation.
+- [ ] Validate snapshot date.
+- [ ] Validate snapshot run ID.
+- [ ] Validate latest snapshot view.
+- [ ] Validate `is_open_unbilled`.
+- [ ] Validate `is_closed_fully_invoiced`.
+- [ ] Validate `is_reported_excluded`.
+- [ ] Validate `open_rab_exposure_amount`.
+- [ ] Validate `invoice_gap_amount`.
+- [ ] Validate `remaining_invoice_amount`.
 - [ ] Validate high risk logic.
-- [ ] Validate REPORTED exclusion.
-- [ ] Save validation results.
+- [ ] Validate urgent flag logic.
+- [ ] Validate manual review flag.
+- [ ] Validate issue history row count.
+- [ ] Validate daily movement readiness.
 
-### Phase 9 — Approved SQL Examples
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 11 — Approved SQL Examples
 
 Status: NOT STARTED
 
@@ -507,7 +1127,24 @@ Pending tasks:
 - [ ] Validate approved SQL examples in PostgreSQL.
 - [ ] Commit approved SQL examples.
 
-### Phase 10 — Power BI Connection
+Required rules:
+
+- Use schema.table explicitly.
+- Do not use `SELECT *` in final reporting queries.
+- Use snapshot table for dashboard movement.
+- Use clean table for latest/current validation.
+- Exclude REPORTED from active open backlog.
+- Use RAB as Revenue / planned billable amount.
+- Use `open_rab_exposure_amount` when available.
+- Use boolean flags from snapshot v1.1 when available.
+- Do not create actual cashflow logic without cash-in data.
+
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 12 — Power BI Connection
 
 Status: NOT STARTED
 
@@ -519,11 +1156,16 @@ Pending tasks:
 - [ ] Load `snapshot.bc_daily_status_snapshot`.
 - [ ] Load `snapshot.vw_daily_movement_summary`.
 - [ ] Load `clean.clean_pic_list`.
-- [ ] Create `dim_date`.
+- [ ] Create or load `dim_date`.
 - [ ] Refresh data.
 - [ ] Confirm PBIX is not committed if it contains embedded real data.
 
-### Phase 11 — Power BI Semantic Model
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 13 — Power BI Semantic Model
 
 Status: NOT STARTED
 
@@ -540,8 +1182,15 @@ Pending tasks:
 - [ ] Avoid fact-to-fact relationship.
 - [ ] Hide technical columns.
 - [ ] Validate cardinality.
+- [ ] Validate filter direction.
+- [ ] Validate no many-to-many issue unless explicitly bridged.
 
-### Phase 12 — DAX Measure Build
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 14 — DAX Measure Build
 
 Status: NOT STARTED
 
@@ -558,8 +1207,14 @@ Pending tasks:
 - [ ] Use `open_rab_exposure_amount` for open exposure.
 - [ ] Avoid `bill_status <> "BILLED"` as open logic.
 - [ ] Save DAX library to repo.
+- [ ] Test DAX in actual PBIX.
 
-### Phase 13 — Executive Overview Page
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 15 — Executive Overview Page
 
 Status: NOT STARTED
 
@@ -577,7 +1232,12 @@ Pending tasks:
 - [ ] Create top high risk BC table.
 - [ ] Validate page filters.
 
-### Phase 14 — AR Controller Page
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 16 — AR Controller Page
 
 Status: NOT STARTED
 
@@ -591,7 +1251,12 @@ Pending tasks:
 - [ ] Add AR-focused slicers.
 - [ ] Validate AR KPI logic.
 
-### Phase 15 — PIC Operation Scoring Page
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 17 — PIC Operation Scoring Page
 
 Status: NOT STARTED
 
@@ -604,8 +1269,14 @@ Pending tasks:
 - [ ] Separate `UNCLASSIFIED` as correction bucket.
 - [ ] Validate PIC relationship.
 - [ ] Validate no many-to-many issue.
+- [ ] Ensure UNCLASSIFIED is not treated as PIC performance penalty.
 
-### Phase 16 — Data Quality / Exception Page
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 18 — Data Quality / Exception Page
 
 Status: NOT STARTED
 
@@ -619,7 +1290,12 @@ Pending tasks:
 - [ ] Create missing/invalid field exception table.
 - [ ] Validate exception logic.
 
-### Phase 17 — Power BI vs SQL Reconciliation
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 19 — Power BI vs SQL Reconciliation
 
 Status: NOT STARTED
 
@@ -639,7 +1315,12 @@ Pending tasks:
 - [ ] Document mismatch if any.
 - [ ] Fix DAX/model if mismatch.
 
-### Phase 18 — Dashboard QA
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
+---
+
+# Phase 20 — Dashboard QA
 
 Status: NOT STARTED
 
@@ -656,22 +1337,45 @@ Pending tasks:
 - [ ] Check measure formatting.
 - [ ] Check tooltip clarity.
 
-### Phase 19 — Documentation
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
 
-Status: NOT STARTED
+---
 
-Pending tasks:
+# Phase 21 — Documentation
 
-- [ ] Document database architecture.
-- [ ] Document semantic model.
-- [ ] Document DAX measures.
-- [ ] Document dashboard page mapping.
-- [ ] Document KPI definitions.
-- [ ] Document reconciliation result.
-- [ ] Document known limitations.
-- [ ] Document next improvement backlog.
+Status: IN PROGRESS
 
-### Phase 20 — Production Preparation
+Completed documentation:
+
+- [x] Repo safety foundation documented.
+- [x] Repository structure documented.
+- [x] PostgreSQL setup documented.
+- [x] Masked source profile documented.
+- [x] Raw layer load documented.
+- [x] Raw validation documented.
+- [x] Clean row count transform documented.
+- [x] Clean layer validation documented.
+
+Pending documentation:
+
+- [ ] Snapshot architecture.
+- [ ] Snapshot validation result.
+- [ ] Approved SQL examples.
+- [ ] Power BI semantic model.
+- [ ] DAX measures.
+- [ ] Dashboard page mapping.
+- [ ] KPI definitions.
+- [ ] Reconciliation result.
+- [ ] Known limitations.
+- [ ] Next improvement backlog.
+
+Validation result: IN PROGRESS  
+Risk level before control: LOW
+
+---
+
+# Phase 22 — Production Preparation
 
 Status: NOT STARTED
 
@@ -687,9 +1391,12 @@ Pending tasks:
 - [ ] Prepare issue log.
 - [ ] Prepare next sprint backlog.
 
+Validation result: NOT STARTED  
+Risk level before control: MEDIUM
+
 ---
 
-## Important Safety Notes
+# Important Safety Notes
 
 - Real data must remain outside the repository.
 - Masked sample data may be stored only under `03_sample_data_masked/`.
@@ -697,11 +1404,150 @@ Pending tasks:
 - `.env.example` is allowed.
 - PBIX files with embedded real data must not be committed.
 - Database dumps must not be committed.
-- Amount fields are currently accepted as safe by user confirmation, but must be reviewed again if repository visibility changes to public.
+- Connection strings must not be committed.
+- Passwords and credentials must not be committed.
+- Amount fields are currently accepted as safe by user confirmation, but must be reviewed again if repository visibility changes or the repository is shared externally.
 
 ---
 
-## Production Readiness
+# Known Issues Resolved
+
+## Issue 1 — SQL pasted directly into PowerShell
+
+Status: RESOLVED
+
+Problem:
+
+```text
+PowerShell returned parser errors such as:
+Missing expression after unary operator '--'
+```
+
+Cause:
+
+```text
+SQL script content was pasted directly into PowerShell instead of being saved as .sql and executed through psql.
+```
+
+Resolution:
+
+```text
+Save SQL script as .sql file and execute using psql -f.
+```
+
+---
+
+## Issue 2 — psql `\copy` multiline parse error
+
+Status: RESOLVED
+
+Problem:
+
+```text
+\copy: parse error at end of line
+```
+
+Cause:
+
+```text
+psql meta-command \copy is line-based and should be written as one full line.
+```
+
+Resolution:
+
+```text
+Rewrite \copy commands as one-line commands.
+```
+
+---
+
+## Issue 3 — Existing clean table blocked DROP
+
+Status: RESOLVED
+
+Problem:
+
+```text
+cannot drop table clean.clean_bc because other objects depend on it
+```
+
+Dependent objects included:
+
+```text
+clean.vw_dq_bc_key_check
+clean.vw_dq_bc_orphan_pic_check
+clean.vw_dq_bc_amount_check
+snapshot.vw_latest_bc_daily_status_snapshot
+```
+
+Cause:
+
+```text
+Existing DQ and snapshot views depended on clean.clean_bc.
+```
+
+Resolution:
+
+```text
+Do not use DROP ... CASCADE.
+Use safe reload with ALTER TABLE ADD COLUMN IF NOT EXISTS, TRUNCATE, then INSERT.
+```
+
+---
+
+## Issue 4 — Existing clean tables missing new columns
+
+Status: RESOLVED
+
+Problem examples:
+
+```text
+column "loaded_at" of relation "clean_pic_list" does not exist
+column "ar_deadline_or_merge_invoice_notes" of relation "clean_bc" does not exist
+```
+
+Cause:
+
+```text
+Clean tables already existed from previous version and did not include all target columns.
+CREATE TABLE IF NOT EXISTS did not patch existing structure.
+```
+
+Resolution:
+
+```text
+Patch all required target columns using ALTER TABLE ADD COLUMN IF NOT EXISTS.
+```
+
+---
+
+## Issue 5 — UTF-8 BOM in SQL validation file
+
+Status: RESOLVED
+
+Problem:
+
+```text
+ERROR: syntax error at or near "ï»¿"
+LINE 1: ï»¿-- SQL content here
+```
+
+Cause:
+
+```text
+File was written with UTF-8 BOM / incorrect initial content.
+PostgreSQL read BOM as invalid SQL characters.
+```
+
+Resolution:
+
+```text
+Delete the file and recreate it using Python with encoding='utf-8' without BOM.
+```
+
+---
+
+# Current Production Readiness
 
 Current production readiness:
 
@@ -711,18 +1557,76 @@ NOT YET
 
 Reason:
 
-- Raw tables are not yet created.
-- Masked sample source is not yet loaded.
-- Raw to clean transform is not yet implemented in this repo.
-- Snapshot tables are not yet created in this local PostgreSQL environment.
+- Raw tables are created and loaded.
+- Clean transform is complete and validated.
+- Detailed clean validation is PASS.
+- Snapshot layer is not yet built in the current repo flow.
+- Snapshot v1.1 validation has not yet been rerun in this current repo flow.
 - Power BI has not yet been connected.
 - Semantic model has not yet been validated.
-- DAX measures have not yet been tested.
+- DAX measures have not yet been tested in actual PBIX.
 - Power BI vs SQL reconciliation has not yet been performed.
 - User final validation is not yet complete.
 
 Current validation role:
 
 ```text
-Foundation setup validated only.
+Foundation, source profile, raw layer, raw validation, clean transform, and clean validation are validated.
+Snapshot validation, Power BI validation, and reconciliation are still pending.
+```
+
+---
+
+# Next Action
+
+Next phase:
+
+```text
+Phase 9 — Snapshot Layer Build
+```
+
+Immediate next file to create:
+
+```text
+01_database/snapshot/004_create_snapshot_layer.sql
+```
+
+Immediate next validation focus:
+
+- snapshot table structure
+- invoice completion logic
+- open backlog logic
+- REPORTED exclusion logic
+- UNCLASSIFIED correction bucket
+- high risk flag
+- open RAB exposure amount
+- data quality and manual review flags
+- snapshot row count vs clean row count
+
+Expected next validation result target:
+
+```text
+PASS or NEEDS REVIEW with documented exceptions
+```
+
+---
+
+# Latest Validation Result
+
+Validation result:
+
+```text
+PASS up to Phase 8
+```
+
+Risk level:
+
+```text
+LOW after Phase 8 controls
+```
+
+Next phase risk before control:
+
+```text
+MEDIUM for Phase 9 Snapshot Layer Build
 ```
