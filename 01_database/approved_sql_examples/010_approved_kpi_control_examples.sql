@@ -41,7 +41,24 @@ GROUP BY
     snapshot_run_id,
     snapshot_date;
 
-\echo 'SQL-10-003 - Open Backlog Detail for AR Controller'
+\echo 'SQL-10-003A - Open Backlog Full Count Control for AR Controller'
+
+SELECT
+    COUNT(*) AS full_open_backlog_row_count,
+    SUM(open_rab_exposure_amount) AS full_open_backlog_exposure_amount,
+    COUNT(*) FILTER (WHERE high_risk_flag = true) AS full_open_backlog_high_risk_count,
+    COUNT(*) FILTER (WHERE needs_manual_review_flag = true) AS full_open_backlog_manual_review_count,
+    CASE
+        WHEN COUNT(*) > 0
+         AND COUNT(*) FILTER (WHERE is_reported_excluded = true) = 0
+        THEN 'PASS'
+        ELSE 'NEEDS REVIEW'
+    END AS validation_result
+FROM snapshot.vw_latest_bc_daily_status_snapshot
+WHERE is_open_unbilled = true
+  AND is_reported_excluded = false;
+
+\echo 'SQL-10-003B - Top 100 Open Backlog Preview for AR Controller'
 
 SELECT
     snapshot_date,
@@ -72,7 +89,6 @@ ORDER BY
     unbilled_aging_days DESC,
     bc_number
 LIMIT 100;
-
 \echo 'SQL-10-004 - Top High Risk BC'
 
 SELECT
