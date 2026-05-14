@@ -1,0 +1,145 @@
+# =========================================================
+# Finance_Ops_Dev - Git Ignore Rules
+# Purpose:
+# Prevent sensitive files, real data, credentials, database
+# exports, and Power BI files with embedded data from being
+# committed to GitHub.
+# =========================================================
+
+
+# =========================================================
+# 1. Environment / Credentials
+# =========================================================
+
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.crt
+*.cer
+*.kdbx
+
+secrets/
+credentials/
+private/
+config/local/
+config/private/
+
+
+# =========================================================
+# 2. Database Dumps / Backups / Exports
+# =========================================================
+
+*.dump
+*.backup
+*.bak
+*.sql.gz
+*.tar
+*.zip
+*.7z
+*.rar
+*.db
+*.sqlite
+*.sqlite3
+
+real_data/
+source_real/
+private_data/
+sensitive_data/
+local_secure_data/
+exports/
+database_exports/
+postgres_exports/
+backup/
+backups/
+
+
+# =========================================================
+# 3. Raw Source Files - Block by Default
+# =========================================================
+# Default rule:
+# Do not commit CSV / Excel files unless they are placed
+# inside the approved masked sample folder.
+
+*.csv
+*.xlsx
+*.xls
+*.xlsm
+
+
+# =========================================================
+# 4. Allow Masked Sample Data Only
+# =========================================================
+# Only files inside 03_sample_data_masked are allowed.
+
+!03_sample_data_masked/
+!03_sample_data_masked/**
+!03_sample_data_masked/**/*.csv
+!03_sample_data_masked/**/*.xlsx
+!03_sample_data_masked/**/*.md
+
+
+# =========================================================
+# 5. Power BI Files
+# =========================================================
+# PBIX/PBIT may contain embedded data and connection info.
+# Do not commit them in the early phase.
+
+*.pbix
+*.pbit
+*.pbip
+*.DataModelSchema
+*.bim
+
+
+# =========================================================
+# 6. Python / Virtual Environment
+# =========================================================
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+
+# =========================================================
+# 7. Logs / Temporary Files
+# =========================================================
+
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+logs/
+
+
+# =========================================================
+# 8. OS / Editor Files
+# =========================================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+.vscode/settings.json
+.idea/
+
+
+# =========================================================
+# 9. Keep Documentation / SQL / DAX Allowed
+# =========================================================
+# These are allowed because they are project artifacts.
+
+!**/*.md
+!**/*.sql
+!**/*.dax
+!**/*.json
+!**/*.txt
