@@ -20,17 +20,32 @@ NOT YET
 
 Proceed to Power BI semantic model setup using validated reporting views.
 
-## Latest Phase 12 SQL Validation
+## Latest Status Update
 
-```text
-OBJECT_EXISTENCE      = PASS
-GRAIN_CHECK           = PASS
-DIM_KEY_CHECK         = PASS
-ORPHAN_KEY_CHECK      = PASS
-CONTROL_TABLE_CHECK   = PASS
-KPI_RECONCILIATION    = PASS
-MOVEMENT_READINESS    = PASS STRUCTURE ONLY
-```
+Phase 12 Power BI semantic model baseline has progressed.
+
+Completed:
+
+- Phase 12 Power BI semantic model contract created and registered.
+- Phase 12 dashboard blueprint v1 created and registered.
+- PBIX loaded curated `reporting.*` views only.
+- Approved relationships created.
+- Control tables remain disconnected.
+- `_Measures` table created.
+- Current KPI, Control KPI, Reconciliation, and Movement Guardrail measures created.
+- Measure folders `01 Current KPI`, `02 Control KPI`, `03 Reconciliation`, and `04 Movement Guardrail` created.
+- `Recon KPI Status` returns `PASS`.
+- SQL reporting views patched with sort-order columns.
+- Sort-order SQL validation returned 8266 rows for current, movement, and issue views with complete order values.
+
+Current validation status:
+
+Validation Result: PASS STRUCTURE ONLY  
+Risk Level: LOW to MEDIUM
+
+Reason:
+
+Semantic model structure, relationships, reconciliation, and SQL sort-order support are working, but dashboard visual pages, slicer behavior, drill-through behavior, refresh validation, and user final validation are not yet completed.
 
 ## Important Sources for Power BI
 
