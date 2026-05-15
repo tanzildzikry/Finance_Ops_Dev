@@ -130,7 +130,6 @@ SELECT
     detected_blocker,
     responsibility_type,
     issue_confidence_level,
-    issue_keyword_matched,
     needs_manual_review_flag,
     classification_method,
     issue_source_text,
