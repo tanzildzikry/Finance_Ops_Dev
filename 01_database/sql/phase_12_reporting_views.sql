@@ -205,6 +205,37 @@ COMMENT ON VIEW reporting.control_movement_kpi IS
 -- ---------------------------------------------------------------------------
 
 CREATE OR REPLACE VIEW reporting.dim_pic AS
+WITH base_pic AS (
+    SELECT DISTINCT
+        TRIM(pic_code) AS pic_code,
+        NULLIF(TRIM(pic_full_name), '') AS pic_full_name,
+        NULLIF(TRIM(division_code), '') AS division_code,
+        NULLIF(TRIM(pic_status), '') AS pic_status
+    FROM clean.clean_pic_list
+    WHERE pic_code IS NOT NULL
+      AND TRIM(pic_code) <> ''
+),
+pic_with_unclassified AS (
+    SELECT
+        pic_code,
+        pic_full_name,
+        division_code,
+        pic_status
+    FROM base_pic
+
+    UNION ALL
+
+    SELECT
+        'UNCLASSIFIED' AS pic_code,
+        'UNCLASSIFIED - PIC not input in ERP' AS pic_full_name,
+        'UNCLASSIFIED' AS division_code,
+        'ACTIVE' AS pic_status
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM base_pic
+        WHERE pic_code = 'UNCLASSIFIED'
+    )
+)
 SELECT
     pic_code,
     pic_full_name,
@@ -214,7 +245,7 @@ SELECT
         WHEN pic_code = 'UNCLASSIFIED' THEN TRUE
         ELSE FALSE
     END AS is_unclassified_pic
-FROM clean.clean_pic_list;
+FROM pic_with_unclassified;
 
 COMMENT ON VIEW reporting.dim_pic IS
 'Phase 12 PIC dimension. Grain: one row per pic_code. UNCLASSIFIED is correction bucket, not PIC performance penalty.';
