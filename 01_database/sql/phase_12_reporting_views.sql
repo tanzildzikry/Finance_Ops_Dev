@@ -124,21 +124,25 @@ CREATE OR REPLACE VIEW reporting.fact_issue_current AS
 SELECT
     snapshot_run_id,
     snapshot_date,
+    snapshot_timestamp,
     bc_number,
     pic_internal_code,
+    billing_status,
+    event_status,
+    invoice_completion_bucket,
+    bc_closing_status,
+    raw_remarks,
+    raw_missing_document_notes,
+    raw_po_status,
+    raw_umk_status,
+    issue_source_text,
     detected_issue_category,
     detected_blocker,
     responsibility_type,
     issue_confidence_level,
-    needs_manual_review_flag,
     classification_method,
-    issue_source_text,
-    billing_remarks,
-    document_status_or_missing_notes,
-    po_status_or_po_number,
-    umk_status,
-    event_status,
-    billing_status
+    needs_manual_review_flag,
+    created_at
 FROM snapshot.vw_latest_bc_daily_issue_history;
 
 COMMENT ON VIEW reporting.fact_issue_current IS
