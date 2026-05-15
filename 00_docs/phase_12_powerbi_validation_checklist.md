@@ -96,3 +96,51 @@ Phase 12 can be marked PASS only when:
 - KPI cards reconcile to control view
 - movement readiness guardrail works
 - user confirms final validation
+
+---
+
+## Phase 12 SQL Reporting Layer Validation Result
+
+Marker: PHASE_12_SQL_VALIDATION_CHECKLIST_APPEND_2026_05_15
+
+Updated: 2026-05-15
+
+### SQL Reporting Layer Status
+
+```text
+PASS STRUCTURE ONLY
+```
+
+### Completed Checks
+
+- [x] reporting.fact_current_bc exists
+- [x] reporting.fact_movement_bc exists
+- [x] reporting.fact_issue_current exists
+- [x] reporting.control_current_kpi exists
+- [x] reporting.control_movement_kpi exists
+- [x] reporting.dim_pic exists
+- [x] reporting.dim_bc exists
+- [x] reporting.dim_date exists
+- [x] Fact_Current_BC grain validated
+- [x] Fact_Movement_BC grain validated
+- [x] Fact_Issue_Current grain validated
+- [x] Dim_PIC unique key validated
+- [x] Dim_BC unique key validated
+- [x] Dim_Date unique key validated
+- [x] PIC orphan keys resolved
+- [x] BC orphan keys resolved
+- [x] Control_Current_KPI row count validated
+- [x] Control_Movement_KPI row count validated
+- [x] Current KPI reconciliation validated
+- [x] Movement readiness validated as structure-only
+
+### Remaining Checks
+
+- [ ] Power BI tables loaded
+- [ ] Power BI relationships created
+- [ ] Power BI no fact-to-fact relationship validated
+- [ ] Power BI no control relationship validated
+- [ ] Power BI no bidirectional filter validated
+- [ ] Power BI KPI cards reconciled
+- [ ] Movement page guardrail applied
+- [ ] User final validation completed

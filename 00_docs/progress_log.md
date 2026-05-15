@@ -2278,3 +2278,132 @@ Current note:
 6. Validate KPI cards against Control_Current_KPI.
 7. Validate no fact-to-fact, no control relationships, no bidirectional relationships.
 8. Update status after PBIX validation.
+
+---
+
+## Phase 12 — SQL Reporting Views Validation Result
+
+Marker: PHASE_12_SQL_VALIDATION_PASS_STRUCTURE_APPEND_2026_05_15
+
+Updated: 2026-05-15  
+Status: PASS STRUCTURE ONLY  
+Validation Result: PASS STRUCTURE ONLY  
+Risk Level: LOW  
+
+### Summary
+
+Phase 12 SQL reporting views and semantic model source validation have been executed successfully.
+
+The reporting layer is structurally ready for Power BI semantic model build.
+
+### Validation Results
+
+```text
+OBJECT_EXISTENCE      = PASS
+GRAIN_CHECK           = PASS
+DIM_KEY_CHECK         = PASS
+ORPHAN_KEY_CHECK      = PASS
+CONTROL_TABLE_CHECK   = PASS
+KPI_RECONCILIATION    = PASS
+MOVEMENT_READINESS    = PASS STRUCTURE ONLY
+```
+
+### Key Validation Details
+
+```text
+Fact_Current_BC:
+rows = 8266
+distinct_bc_number = 8266
+duplicate_bc_number = 0
+null_or_blank_bc_number = 0
+
+Fact_Issue_Current:
+rows = 8266
+distinct_bc_number = 8266
+duplicate_bc_number = 0
+null_or_blank_bc_number = 0
+
+Fact_Movement_BC:
+rows = 8266
+distinct_snapshot_date_bc_number = 8266
+duplicate_snapshot_date_bc_number = 0
+distinct_snapshot_dates = 1
+
+Dim_BC:
+rows = 8266
+distinct_bc_number = 8266
+duplicate_bc_number = 0
+
+Dim_PIC:
+rows = 70
+distinct_pic_code = 70
+duplicate_pic_code = 0
+unclassified_row_count = 1
+
+Orphan PIC:
+Fact_Current_BC orphan_pic_count = 0
+Fact_Movement_BC orphan_pic_count = 0
+
+Control tables:
+Control_Current_KPI rows = 1
+Control_Movement_KPI rows = 1
+```
+
+### KPI Reconciliation
+
+```text
+total_bc_count:
+fact = 8266
+control = 8266
+result = PASS
+
+open_bc_count:
+fact = 8145
+control = 8145
+result = PASS
+
+open_rab_exposure_amount:
+fact = 4,956,993,250,804.46
+control = 4,956,993,250,804.46
+result = PASS
+
+high_risk_bc_count:
+fact = 3
+control = 3
+result = PASS
+
+high_risk_rab_exposure_amount:
+fact = 23,820,974,461.00
+control = 23,820,974,461.00
+result = PASS
+
+average_aging_open_bc:
+fact = 51.0055248618784530
+control = 51.0055248618784530
+result = PASS
+```
+
+### Dim_PIC Patch Decision
+
+`reporting.dim_pic` was patched to include a synthetic `UNCLASSIFIED` row.
+
+Reason:
+- `UNCLASSIFIED` exists in fact tables as correction bucket.
+- `clean.clean_pic_list` did not contain `UNCLASSIFIED`.
+- Without the synthetic row, Power BI relationship would have 12 orphan PIC keys.
+- After patch, orphan PIC count is 0.
+
+### Movement Readiness
+
+```text
+latest-per-day distinct_snapshot_dates = 1
+validation_result = PASS STRUCTURE ONLY
+```
+
+Movement source is structurally safe, but trend insight must not be interpreted until latest-per-day distinct_snapshot_dates >= 2.
+
+### Current Hold Point
+
+Proceed to Power BI load and semantic relationship setup using curated reporting views.
+
+Do not mark full Phase 12 PASS until PBIX relationship validation and Power BI card reconciliation are complete.

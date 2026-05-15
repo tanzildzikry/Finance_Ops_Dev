@@ -50,3 +50,30 @@ Use prefixes:
 
 Do not use billing_status <> "BILLED" as open backlog logic.
 Use is_open_unbilled and open_rab_exposure_amount.
+
+---
+
+## Memory Update — Phase 12 SQL Validation Result
+
+Marker: PHASE_12_SQL_VALIDATION_PROJECT_MEMORY_APPEND_2026_05_15
+
+Updated: 2026-05-15
+
+Phase 12 SQL reporting layer validation has passed structurally.
+
+Validated:
+- reporting objects exist
+- fact grains are stable
+- dimension keys are unique
+- orphan keys are resolved
+- KPI reconciliation passes
+- movement source is structurally safe
+
+Important decision:
+- `reporting.dim_pic` includes synthetic `UNCLASSIFIED` row.
+- This prevents orphan PIC keys in Power BI.
+- UNCLASSIFIED remains correction bucket, not PIC performance penalty.
+
+Current validation state:
+- PASS STRUCTURE ONLY
+- Full Phase 12 PASS still requires PBIX relationship validation and Power BI KPI card reconciliation.

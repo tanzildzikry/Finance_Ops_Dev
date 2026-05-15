@@ -1808,3 +1808,75 @@ Current condition:
 ### Next Step
 
 Proceed to create Phase 12 reporting SQL views and validation script.
+
+---
+
+## Phase 12 Handover Update — SQL Validation Result
+
+Marker: PHASE_12_SQL_VALIDATION_HANDOVER_APPEND_2026_05_15
+
+Updated: 2026-05-15
+
+### Current Status
+
+Phase 12 SQL reporting views validation result:
+
+```text
+PASS STRUCTURE ONLY
+```
+
+### Validation Summary
+
+```text
+OBJECT_EXISTENCE      = PASS
+GRAIN_CHECK           = PASS
+DIM_KEY_CHECK         = PASS
+ORPHAN_KEY_CHECK      = PASS
+CONTROL_TABLE_CHECK   = PASS
+KPI_RECONCILIATION    = PASS
+MOVEMENT_READINESS    = PASS STRUCTURE ONLY
+```
+
+### Critical Detail
+
+`reporting.dim_pic` now includes a synthetic `UNCLASSIFIED` row.
+
+This is required because:
+- UNCLASSIFIED is a correction bucket.
+- UNCLASSIFIED is not PIC performance penalty.
+- Fact tables contain 12 UNCLASSIFIED PIC rows.
+- Power BI relationship must not have orphan PIC keys.
+
+After patch:
+- Dim_PIC rows = 70
+- unclassified_row_count = 1
+- Fact_Current_BC orphan_pic_count = 0
+- Fact_Movement_BC orphan_pic_count = 0
+
+### Movement Rule
+
+Movement readiness remains:
+
+```text
+PASS STRUCTURE ONLY
+```
+
+Reason:
+- latest-per-day distinct_snapshot_dates = 1
+
+Do not interpret movement trend until latest-per-day distinct_snapshot_dates >= 2.
+
+### Next Step
+
+Proceed to Power BI load:
+- Fact_Current_BC
+- Fact_Movement_BC
+- Fact_Issue_Current
+- Control_Current_KPI
+- Control_Movement_KPI
+- Dim_PIC
+- Dim_BC
+- Dim_Date
+- _Measures
+
+Then validate relationship setup and KPI cards in PBIX.

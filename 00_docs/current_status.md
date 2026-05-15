@@ -10,7 +10,7 @@ PASS through Phase 11.3 — Align Movement Readiness Logic
 
 Phase 12 — Power BI Semantic Model Build / Relationship Setup
 
-Status: IN PROGRESS
+Status: SQL REPORTING LAYER PASS STRUCTURE ONLY
 
 ## Production Readiness
 
@@ -18,30 +18,72 @@ NOT YET
 
 ## Active Focus
 
-- Build curated reporting views
-- Refactor Power BI semantic model
-- Use canonical DAX measures
-- Keep KPI control tables disconnected
-- Avoid fact-to-fact relationships
-- Validate current KPI cards against control view
-- Keep movement trend interpretation disabled until latest-per-day distinct_snapshot_dates >= 2
+Proceed to Power BI semantic model setup using validated reporting views.
 
-## Important Sources
+## Latest Phase 12 SQL Validation
+
+```text
+OBJECT_EXISTENCE      = PASS
+GRAIN_CHECK           = PASS
+DIM_KEY_CHECK         = PASS
+ORPHAN_KEY_CHECK      = PASS
+CONTROL_TABLE_CHECK   = PASS
+KPI_RECONCILIATION    = PASS
+MOVEMENT_READINESS    = PASS STRUCTURE ONLY
+```
+
+## Important Sources for Power BI
 
 Current dashboard fact:
-- snapshot.vw_latest_bc_daily_status_snapshot
+- reporting.fact_current_bc
+- source: snapshot.vw_latest_bc_daily_status_snapshot
 
 KPI reconciliation:
-- snapshot.vw_latest_snapshot_kpi_control
+- reporting.control_current_kpi
+- source: snapshot.vw_latest_snapshot_kpi_control
 
 Movement / trend fact:
-- snapshot.vw_daily_status_snapshot_latest_per_day
+- reporting.fact_movement_bc
+- source: snapshot.vw_daily_status_snapshot_latest_per_day
 
 Movement KPI control:
-- snapshot.vw_daily_kpi_control_latest_per_day
+- reporting.control_movement_kpi
+- source: snapshot.vw_daily_kpi_control_latest_per_day
 
-## Current Rule
+Issue detail:
+- reporting.fact_issue_current
+- source: snapshot.vw_latest_bc_daily_issue_history
 
-Documentation and repo updates must be terminal-first / script-first where practical.
+PIC dimension:
+- reporting.dim_pic
+- includes synthetic UNCLASSIFIED row
 
-Avoid manual file editing for major patches.
+BC dimension:
+- reporting.dim_bc
+
+Date dimension:
+- reporting.dim_date
+
+## Movement Rule
+
+Movement source is structurally safe.
+
+Movement trend must not be interpreted until:
+
+```text
+latest-per-day distinct_snapshot_dates >= 2
+```
+
+Current latest-per-day distinct_snapshot_dates:
+
+```text
+1
+```
+
+## Next Required Step
+
+Build Power BI semantic model:
+- load curated reporting views
+- apply relationship matrix
+- create canonical DAX measures
+- validate Power BI cards against control values
